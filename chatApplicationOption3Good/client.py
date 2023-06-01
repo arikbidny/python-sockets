@@ -2,6 +2,7 @@
 import socket
 import sys
 import errno
+import datetime
 
 
 # defining the header length.
@@ -9,7 +10,7 @@ HEADER_LENGTH = 10
 
 # defining the IP address and Port Number.
 IP = "127.0.0.1"
-PORT = 1234
+PORT = 5555
 
 # Getting the name of the client.
 my_username = input("Username: ")
@@ -70,14 +71,18 @@ while True:
 
             # Decoding the received username.
             username = client_socket.recv(username_length).decode('utf-8')
+            print(username)
 
+            current_time = datetime.datetime.now().strftime('%H:%M')
             # Decoding the received message.
             message_header = client_socket.recv(HEADER_LENGTH)
+
             message_length = int(message_header.decode('utf-8').strip())
             message = client_socket.recv(message_length).decode('utf-8')
 
             # Printing the message.
-            print(f'{username} > {message}')
+
+            print(f'{current_time} {username} : {message}')
 
     except IOError as e:
         # handling the normal error on nonblocking connections.

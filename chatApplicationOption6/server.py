@@ -1,3 +1,5 @@
+############# SERVER - 12.5 #############
+
 import socket
 import select
 
@@ -38,8 +40,17 @@ while True:
                 client_sockets.remove(current_socket)
                 current_socket.close()
                 print_client_sockets(client_sockets)
+            if data == "quit":
+                print("Connection closed", )
+                client_sockets.remove(current_socket)
+                current_socket.close()
+                print_client_sockets(client_sockets)
             else:
-                messages_to_send.append((current_socket, data))
+                # Send the message to all clients except the sender
+                for client in client_sockets:
+                    if client is not current_socket:
+                        print(data)
+                        messages_to_send.append((client, data.upper()))
 
     for message in messages_to_send:
         current_socket, data = message
