@@ -5,7 +5,7 @@ import msvcrt
 
 
 def chat_client():
-    server_address = ('localhost', 9000)
+    server_address = ('localhost', 5555)
 
     # Create a TCP socket
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
