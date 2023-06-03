@@ -33,24 +33,27 @@ private_chats = []
 def print_client_sockets(client_sockets):
     for c in client_sockets:
         print(c.getpeername())
-        
+
+
 def send_message(client, message):
     client.send(message.encode())
-        
-        
+
+
 def broadcast_global_message(message):
     for client in clients.values():
         client.send(message.encode())
-        
+
 # Broadcast message to all connected clients
+
+
 def broadcast(message, username):
     now = datetime.datetime.now()
     time_str = now.strftime("%H:%M")
     if (username in admins):
         for client in clients.values():
-          print(client)
-          message = f"{time_str} @{username}: {message}"
-          client.send(message.encode())
+            print(client)
+            message = f"{time_str} @{username}: {message}"
+            client.send(message.encode())
     else:
         for client in clients.values():
             print(client)
@@ -58,33 +61,41 @@ def broadcast(message, username):
             message = f"{time_str} {username}: {message}"
             client.send(message.encode())
 
-# get all admins 
+# get all admins
+
+
 def get_admins():
     admins_str = "Admins: "
     for admin in admins:
         admins_str += f"{admin} "
-    return admins_str 
+    return admins_str
 
 # give admin permissions to client
+
+
 def give_admin_permissions(admin, user):
     if admin in admins:
         admins.append(user)
         broadcast_global_message(f"{user} has been granted admin permissions!")
     else:
         current_socket.send("You don't have admin permissions!".encode())
-        
+
 # Process kick user command
+
+
 def process_kick_user(admin, user):
     if admin in admins:
         client_sockets.remove(current_socket)
         clients.pop(username)
         broadcast_global_message(f"{user} has been kicked from the chat!")
-        
+
+
 def process_mute_user(admin, user):
     if admin in admins:
         muted_users[user] = True
         send_message(clients[user], "You cannot speak here")
-        
+
+
 def process_private_message(sender, recipient, message):
     if sender in clients and recipient in clients:
         private_message = f"Private message from {sender}: {message}"
@@ -103,19 +114,18 @@ while True:
             connection, client_address = current_socket.accept()
             print("New client joined!", client_address)
             client_sockets.append(connection)
-            
+
             username = connection.recv(1024).decode().strip()
 
             print(f"Username in first connection: {username}")
 
-            clients[username] = connection;
-            
+            clients[username] = connection
+
             print(f"New client connected: {username}")
-            
+
             # Broadcast user join message
-            broadcast_global_message(f"{username} has joined the chat!")      
-            
-            
+            broadcast_global_message(f"{username} has joined the chat!")
+
             # print_client_sockets(client_sockets)
         else:
             print("Incoming message from a client")
@@ -127,7 +137,8 @@ while True:
                 print("Connection closed", )
                 client_sockets.remove(current_socket)
                 clients.pop(username)
-                broadcast_global_message(f"{time_str} {username} has left the chat!") 
+                broadcast_global_message(
+                    f"{time_str} {username} has left the chat!")
                 # current_socket.close()
                 # print_client_sockets(client_sockets)
                 continue
@@ -136,24 +147,28 @@ while True:
                 client_sockets.remove(current_socket)
                 clients.pop(username)
                 # current_socket.close()
-                broadcast_global_message(f"{time_str} {username} has left the chat!") 
+                broadcast_global_message(
+                    f"{time_str} {username} has left the chat!")
                 # print_client_sockets(client_sockets)
             if data == "view-managers":
                 print("View managers")
                 current_socket.send(get_admins().encode())
-            else:       
+            else:
+                # get the username length from the data - first character
                 username_length = int(data[0])
-                
-                username_send =  ''.join(data[1 : username_length + 1])
 
+                # get the username from the data
+                username_send = ''.join(data[1: username_length + 1])
+
+                # get the command from the data
                 command = int(data[username_length + 1])
-                
+
                 # message_length = int(data[username_length + 2 : username_length + 2 + command])
 
                 # message = data[username_length + 2 + command :]
-                # get the message from the data
+                # get the message from the data - using regexp to get the message
                 match = re.match(r"\d+[A-Za-z]+\d+(.*)", data)
-                
+
                 if match:
                     message = match.group(1)
                     print(f"Command: {command}")
@@ -163,9 +178,9 @@ while True:
                     if command == 1:
                         print("Regular message")
                         print(username_send)
-                        broadcast(message, username_send)  
-                        # continue  
-                    # give admin permission 
+                        broadcast(message, username_send)
+                        # continue
+                    # give admin permission
                     if command == 2:
                         print("give admin access")
                         give_admin_permissions(username_send, message)
@@ -182,16 +197,19 @@ while True:
                     # Private chat
                     elif command == 5:
                         print("private chat")
-                        message_length = int(data[username_length+2:username_length+2+command])
-                        recipient_length = int(data[4+username_length+message_length])
-                        recipient = data[5+username_length+message_length:5+username_length+message_length+recipient_length]
-                        private_message = data[5+username_length+message_length+recipient_length:]
-                        process_private_message(username, recipient, private_message)                        
+                        message_length = int(
+                            data[username_length+2:username_length+2+command])
+                        recipient_length = int(
+                            data[4+username_length+message_length])
+                        recipient = data[5+username_length+message_length:5 +
+                                         username_length+message_length+recipient_length]
+                        private_message = data[5+username_length +
+                                               message_length+recipient_length:]
+                        process_private_message(
+                            username, recipient, private_message)
                 else:
                     print("Invalid input format")
-                        
-                    
-                
+
                 # messages_to_send.append((current_socket, data))
                 # print(data)
 

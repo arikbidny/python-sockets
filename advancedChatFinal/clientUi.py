@@ -6,6 +6,8 @@ from tkinter import messagebox
 # Create a Tkinter application window
 window = tk.Tk()
 window.title("Chat Client Advanced Ui by Yuval")
+
+# Set the window size
 window.geometry("800x600")
 
 # Create a text area for displaying messages
@@ -25,8 +27,8 @@ def get_username():
     username = username_entry.get()
     print("username: ", username)
     if username:
-       client_socket.send(username.encode())
-       start_client(client_socket)
+        client_socket.send(username.encode())
+        start_client(client_socket)
     else:
         messagebox.showerror("Error", "Please enter a username.")
 
@@ -51,7 +53,7 @@ def send_chat_message():
     print("message: ", message)
     username = username_entry.get()
     print(client_socket)
-    
+
     if message:
         # client_socket = connect_to_server(username)
         send_chat_message_to_server(client_socket, message)
