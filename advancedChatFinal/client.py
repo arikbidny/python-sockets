@@ -6,6 +6,12 @@ import msvcrt
 # Get the username from the user
 username = input("Enter your username: ")
 
+# if the username start with @ please press again
+while username[0] == "@":
+    username = input(
+        "Character '@' is not allowed in the first character. Please enter your username again: ")
+
+
 # Connect to the server
 def connect_to_server():
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -28,14 +34,14 @@ def start_client(client_socket):
         if msvcrt.kbhit():
             message = input("message: ")
             print(message)
-            
+
             send_chat_message(client_socket, message)
-            
+
         # Check if there is incoming data from the server
         if client_socket in select.select([client_socket], [], [], 0)[0]:
-          data = client_socket.recv(1024).decode()
-          print(data)   
-            
+            data = client_socket.recv(1024).decode()
+            print(data)
+
+
 client_socket = connect_to_server()
 start_client(client_socket)
-            
